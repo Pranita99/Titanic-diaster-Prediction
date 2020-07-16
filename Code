@@ -1,0 +1,113 @@
+import numpy as np 
+import sklearn
+
+# data processing
+import pandas as pd 
+
+#feature
+import featuretools as ft
+
+# data visualization
+import seaborn as sns
+%matplotlib inline
+from matplotlib import pyplot as plt
+from matplotlib import style
+
+# Algorithms
+from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC, LinearSVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn import preprocessing
+!pip install -U seaborn
+test_df = pd.read_csv("test.csv")
+train_df = pd.read_csv("train.csv")
+train_df2=pd.read_csv("train.csv")
+train_df1=pd.read_csv("train.csv")
+test_df1=pd.read_csv("test.csv")
+test_df3=pd.read_csv("test.csv")
+gen_df=pd.read_csv("gender_submission.csv")
+print(train_df1.isnull().count())
+median= train_df1.median()
+print(median)
+null_counts = train_df1.isnull().sum()
+null_counts[null_counts > 0].sort_values(ascending=False)
+train_df1['Age'].fillna(train_df1['Age'].median(), inplace = True)
+train_df1.drop(['Cabin'],axis = 1,inplace= True)
+train_df1.info()
+train_df1['Embarked'].fillna(train_df1['Embarked'].mode()[0], inplace = True)
+train_df1['Embarked_Code'] = sklearn.preprocessing.LabelEncoder().fit_transform(train_df1['Embarked'])
+train_df1.drop('Embarked',axis=1,inplace=True)
+from sklearn.preprocessing import OneHotEncoder
+Y_train = np.asarray(train_df1[['Embarked_Code']])
+
+x=OneHotEncoder(sparse=False).fit_transform(Y_train)
+train_df1["S"]=x[:,0]
+train_df1["Q"]=x[:,1]
+train_df1["C"]=x[:,2]
+train_df1['Title'] = train_df1['Name'].str.split(", ", expand=True)[1].str.split(".", expand=True)[0]
+min = 10
+initials = (train_df1['Title'].value_counts() < min)
+
+train_df1['Title'] = train_df1['Title'].apply(lambda x: 'Misc' if initials.loc[x] == True else x)
+print(train_df1['Title'].value_counts())
+port={"male":1,"female":0}
+train_df1['Sex']=train_df1['Sex'].map(port)
+port={"Mr":1,"Miss":0,"Mrs":2,"Master":4,"Misc":5}
+train_df1['Title']=train_df1['Title'].map(port)
+train_df1
+from pandas import Series,DataFrame
+train_df1.drop('Ticket',axis=1,inplace=True)
+train_df1 #visualizing
+train_df1['AGE_SEX']=train_df1['Sex']*train_df1['Age'] #creatingNewcoloumns
+train_df1['Pclass_fare']=train_df1['Pclass']*train_df1['Fare']
+train_df1['Sib_Parch']=train_df1['SibSp']*train_df1['Parch']
+train_df1
+train_df1.drop('Name',axis=1,inplace=True)
+train_df1
+y_train1=train_df1["Survived"]#droppingredundantcoloumns
+y_train1
+clc=RandomForestClassifier(n_estimators=100, max_depth=3,random_state=0)
+clc.fit(X_train1, y_train1)
+clc.score(X_train1,y_train1)#RandomForestClassifier
+train_df1['A_S3']=(train_df1['Age']*train_df1['Age'])+(train_df1['Sex']*train_df1['Sex'])
+train_df1['A_S4']=(train_df1['Age']*train_df1['Age'])+train_df1['Sex']
+train_df1['A_S5']=(train_df1['AGE_SEX']*train_df1['Sex'])+train_df['Age']
+train_df1.drop('A_S5',axis=1,inplace=True)
+train_df1.drop('A_S2',axis=1,inplace=True)
+y_train1=train_df["Survived"]
+y_train1
+X_train1=train_df1.drop('Survived',axis=1,inplace=True)
+X_train1=train_df1
+X_train1
+test_df['Title'] = test_df['Name'].str.split(", ", expand=True)[1].str.split(".", expand=True)[0]
+min = 10
+initials = (test_df['Title'].value_counts() < min)
+
+test_df['Title'] = test_df['Title'].apply(lambda x: 'Misc' if initials.loc[x] == True else x)
+print(test_df['Title'].value_counts())
+test_df['Title'] = test_df['Name'].str.split(", ", expand=True)[1].str.split(".", expand=True)[0]
+port={"Mr":1,"Miss":0,"Mrs":2,"Master":4,"Misc":5}
+test_df['Title']=test_df['Title'].map(port)
+test_df.drop('Ticket',axis=1,inplace=True)
+port={"male":1,"female":0}
+test_df['Sex']=test_df['Sex'].map(port)
+test_df
+test_df['AGE_SEX']=test_df['Sex']*test_df['Age']
+test_df['Pclass_fare']=test_df['Pclass']*test_df['Fare']
+test_df['Sb_Parch']=test_df['SibSp']*test_df['Parch']
+test_df['A_S3']=(test_df['Age']*test_df['Age'])+(test_df['Sex']*test_df['Sex'])
+test_df['A_S4']=(test_df['Age']*test_df['Age'])+test_df['Sex']
+test_df.drop('Name',axis=1,inplace=True)
+y_test=gen_df['Survived']
+y_test
+X_test= test_df
+X_test
+clc=RandomForestClassifier(n_estimators=100, max_depth=3,random_state=0)
+clc.fit(X_train1, y_train1)
+clc.score(X_test,y_test)
